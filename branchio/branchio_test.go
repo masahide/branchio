@@ -1,29 +1,27 @@
 package branchio
 
 import (
+	"fmt"
 	"log"
 	"runtime"
 	"testing"
 	"time"
 )
 
-func hoge(buf <-chan []byte) {
-	for {
-		log.Printf("hoge:%s\n", <-buf)
-	}
-}
-func fuga(buf <-chan []byte) {
-	for {
-		log.Printf("fuga:%s\n", <-buf)
-	}
+type printwriter struct{}
+
+func (*printwriter) Write(p []byte) (n int, err error) {
+	fmt.Println(string(p))
+	return len(p), nil
 }
 
 func TestNewWriterSize(t *testing.T) {
 
 	cpus := runtime.NumCPU()
 	runtime.GOMAXPROCS(cpus)
-
-	writer := NewWriterSize([]BranchWriter{hoge, fuga}, 10)
+	a := NewBranchChannelWriter(&printwriter{})
+	b := NewBranchChannelWriter(&printwriter{})
+	writer := NewWriterSize([]*BranchChannelWriter{a, b}, 10)
 	writer.Write([]byte("1111111111111"))
 	writer.Write([]byte("1111111111111"))
 	writer.Write([]byte("1111111111111"))
