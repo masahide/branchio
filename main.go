@@ -22,8 +22,15 @@ func main() {
 	b := branchio.NewBranchChannelWriter(file_b)
 
 	branchWriter := branchio.NewWriter([]*branchio.BranchChannelWriter{a, b})
-
+	log.Printf("a:%v\n", branchWriter.CountWorkers())
 	io.Copy(branchWriter, os.Stdin)
-	time.Sleep(2 * time.Second)
+	for {
+		if branchWriter.CountWorkers() == 0 {
+			break
+		}
+		//time.Sleep(1 * time.Millisecond)
+		time.Sleep(1 * time.Second)
+		log.Printf("for:%v\n", branchWriter.CountWorkers())
+	}
 
 }
